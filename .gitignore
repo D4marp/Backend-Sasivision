@@ -42,7 +42,7 @@ Thumbs.db
 # Project specific
 dist/
 build/
-server
+/server
 *.pem
 *.key
 
