@@ -33,12 +33,16 @@ type Config struct {
 
 	// Rate limiting
 	RateLimitRPS int
+
+	// Database bootstrap
+	RunMigrations bool
 }
 
 func LoadConfig() *Config {
 	jwtExpiry, _ := time.ParseDuration(getEnv("JWT_EXPIRY", "720h"))
 
 	rateLimitRPS, _ := strconv.Atoi(getEnv("RATE_LIMIT_RPS", "100"))
+	runMigrations := getEnv("RUN_MIGRATIONS", "false") == "true"
 
 	return &Config{
 		AppEnv:       getEnv("APP_ENV", "development"),
@@ -53,12 +57,13 @@ func LoadConfig() *Config {
 		JWTExpiry:    jwtExpiry,
 		CORSOrigin:   getEnv("CORS_ORIGIN", "http://localhost:8000"),
 		RateLimitRPS: rateLimitRPS,
+		RunMigrations: runMigrations,
 	}
 }
 
 func InitDB(cfg *Config) (*sql.DB, error) {
 	dsn := fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local&multiStatements=true",
 		cfg.DBUser,
 		cfg.DBPassword,
 		cfg.DBHost,

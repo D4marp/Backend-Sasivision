@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/sasivision/backend/internal/config"
+	"github.com/sasivision/backend/internal/database"
 	"github.com/sasivision/backend/internal/handlers"
 	"github.com/sasivision/backend/internal/server"
 )
@@ -23,6 +24,14 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer db.Close()
+
+	if cfg.RunMigrations {
+		dir := database.MigrationsDir()
+		log.Printf("RUN_MIGRATIONS=true — applying migrations from %s", dir)
+		if err := database.RunMigrations(db, dir); err != nil {
+			log.Fatalf("Migration failed: %v", err)
+		}
+	}
 
 	if cfg.AppEnv == "production" {
 		gin.SetMode(gin.ReleaseMode)

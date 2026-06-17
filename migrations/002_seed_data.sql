@@ -80,29 +80,4 @@ INSERT INTO videos (title, slug, description, source, video_url, thumbnail, disc
 )
 ON DUPLICATE KEY UPDATE title = title;
 
-INSERT INTO quiz_categories (name, slug, description, display_order, is_active) VALUES
-('Post-Test', 'post-test', 'Test your knowledge about Sasirangan culture', 1, 1),
-('Basics', 'basics', 'Introductory questions about Sasirangan', 2, 0)
-ON DUPLICATE KEY UPDATE name = name;
-
-INSERT INTO quizzes (category_id, type, question, image_url, sequence_order) VALUES
-((SELECT id FROM quiz_categories WHERE slug = 'post-test'), 'multiple_choice', 'What region is Sasirangan batik originally from?', NULL, 1),
-((SELECT id FROM quiz_categories WHERE slug = 'post-test'), 'multiple_choice', 'What technique is used to create Sasirangan patterns?', NULL, 2),
-((SELECT id FROM quiz_categories WHERE slug = 'post-test'), 'multiple_choice', 'The Bintang Bahambur motif symbolizes:', NULL, 3),
-((SELECT id FROM quiz_categories WHERE slug = 'post-test'), 'essay', 'Explain the cultural significance of Sasirangan batik in Banjar society.', NULL, 4);
-
-INSERT INTO quiz_answers (quiz_id, answer_key, answer_text, is_correct) VALUES
-((SELECT id FROM quizzes WHERE sequence_order = 1 AND category_id = (SELECT id FROM quiz_categories WHERE slug = 'post-test')), 'A', 'South Kalimantan', 1),
-((SELECT id FROM quizzes WHERE sequence_order = 1 AND category_id = (SELECT id FROM quiz_categories WHERE slug = 'post-test')), 'B', 'Central Java', 0),
-((SELECT id FROM quizzes WHERE sequence_order = 1 AND category_id = (SELECT id FROM quiz_categories WHERE slug = 'post-test')), 'C', 'Bali', 0),
-((SELECT id FROM quizzes WHERE sequence_order = 1 AND category_id = (SELECT id FROM quiz_categories WHERE slug = 'post-test')), 'D', 'West Sumatra', 0),
-
-((SELECT id FROM quizzes WHERE sequence_order = 2 AND category_id = (SELECT id FROM quiz_categories WHERE slug = 'post-test')), 'A', 'Batik tulis', 0),
-((SELECT id FROM quizzes WHERE sequence_order = 2 AND category_id = (SELECT id FROM quiz_categories WHERE slug = 'post-test')), 'B', 'Needle-resist dyeing', 1),
-((SELECT id FROM quizzes WHERE sequence_order = 2 AND category_id = (SELECT id FROM quiz_categories WHERE slug = 'post-test')), 'C', 'Ikat weaving', 0),
-((SELECT id FROM quizzes WHERE sequence_order = 2 AND category_id = (SELECT id FROM quiz_categories WHERE slug = 'post-test')), 'D', 'Block printing', 0),
-
-((SELECT id FROM quizzes WHERE sequence_order = 3 AND category_id = (SELECT id FROM quiz_categories WHERE slug = 'post-test')), 'A', 'War and conflict', 0),
-((SELECT id FROM quizzes WHERE sequence_order = 3 AND category_id = (SELECT id FROM quiz_categories WHERE slug = 'post-test')), 'B', 'Stars and harmony in the universe', 1),
-((SELECT id FROM quizzes WHERE sequence_order = 3 AND category_id = (SELECT id FROM quiz_categories WHERE slug = 'post-test')), 'C', 'Agricultural harvest', 0),
-((SELECT id FROM quizzes WHERE sequence_order = 3 AND category_id = (SELECT id FROM quiz_categories WHERE slug = 'post-test')), 'D', 'Royal authority', 0);
+-- Quiz categories & questions: see 005_quiz_seed_sasirangan.sql (idempotent)

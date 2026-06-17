@@ -1,0 +1,14 @@
+.git
+.env
+.env.*
+!.env.example
+*.log
+storage/*
+!storage/descriptions/
+server
+seed
+*.test
+*.out
+docker-compose*.yml
+README.md
+BRAINSTORM_BACKEND.md

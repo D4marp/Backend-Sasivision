@@ -1,7 +1,4 @@
-version: '3.8'
-
 services:
-  # MySQL Database
   mysql:
     image: mysql:8.0
     container_name: sasivision-mysql
@@ -11,16 +8,16 @@ services:
       MYSQL_USER: sasivision
       MYSQL_PASSWORD: sasivision_password
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./migrations:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-usasivision", "-psasivision_password"]
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 12
+      start_period: 20s
 
-  # Golang API Server
   api:
     build: .
     container_name: sasivision-api
@@ -35,15 +32,23 @@ services:
       DB_USER: sasivision
       DB_PASSWORD: sasivision_password
       DB_NAME: sasivision
-      JWT_SECRET: your_super_secret_jwt_key
+      JWT_SECRET: your_super_secret_jwt_key_change_in_production
       JWT_EXPIRY: 720h
-      CORS_ORIGIN: "http://localhost:8000,http://localhost:8100"
+      CORS_ORIGIN: "http://localhost:8000,http://localhost:8100,*"
       RATE_LIMIT_RPS: 100
+      RUN_MIGRATIONS: "true"
+      WAIT_FOR_DB: "true"
+      MIGRATIONS_DIR: /app/migrations
     ports:
       - "8080:8080"
     volumes:
       - ./storage:/app/storage
-    command: ["./server"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 45s
 
 volumes:
   mysql_data:
