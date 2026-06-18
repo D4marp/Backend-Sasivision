@@ -14,6 +14,7 @@ import (
 )
 
 type Handler struct {
+	db        *sql.DB
 	cfg       *config.Config
 	users     *repositories.UserRepository
 	sessions  *repositories.SessionRepository
@@ -25,6 +26,7 @@ type Handler struct {
 
 func New(db *sql.DB, cfg *config.Config) *Handler {
 	return &Handler{
+		db:        db,
 		cfg:       cfg,
 		users:     repositories.NewUserRepository(db),
 		sessions:  repositories.NewSessionRepository(db),

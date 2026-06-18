@@ -25,12 +25,8 @@ func main() {
 	}
 	defer db.Close()
 
-	if cfg.RunMigrations {
-		dir := database.MigrationsDir()
-		log.Printf("RUN_MIGRATIONS=true — applying migrations from %s", dir)
-		if err := database.RunMigrations(db, dir); err != nil {
-			log.Fatalf("Migration failed: %v", err)
-		}
+	if err := database.EnsureSchema(db, cfg.RunMigrations); err != nil {
+		log.Fatalf("Database bootstrap failed: %v", err)
 	}
 
 	if cfg.AppEnv == "production" {

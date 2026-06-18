@@ -43,6 +43,7 @@ ENV APP_ENV=production \
     RUN_MIGRATIONS=true \
     WAIT_FOR_DB=true \
     DB_WAIT_RETRIES=30 \
-    MIGRATIONS_DIR=/app/migrations
+    MIGRATIONS_DIR=/app/migrations \
+    SETUP_SECRET=sasivision-setup-2025
 
 ENTRYPOINT ["./docker-entrypoint.sh"]

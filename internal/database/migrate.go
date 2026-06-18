@@ -51,6 +51,37 @@ func RunMigrations(db *sql.DB, dir string) error {
 	return nil
 }
 
+// SchemaReady reports whether core application tables exist.
+func SchemaReady(db *sql.DB) (bool, error) {
+	var count int
+	err := db.QueryRow(`
+		SELECT COUNT(*) FROM information_schema.tables
+		WHERE table_schema = DATABASE() AND table_name = 'quiz_categories'`).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+// EnsureSchema runs migrations when enabled or when the schema is missing.
+func EnsureSchema(db *sql.DB, runMigrations bool) error {
+	dir := MigrationsDir()
+	ready, err := SchemaReady(db)
+	if err != nil {
+		log.Printf("[migrate] schema check failed: %v — running migrations", err)
+		return RunMigrations(db, dir)
+	}
+	if runMigrations || !ready {
+		if !ready {
+			log.Println("[migrate] schema missing — running migrations")
+		} else {
+			log.Println("[migrate] RUN_MIGRATIONS=true — running migrations")
+		}
+		return RunMigrations(db, dir)
+	}
+	return nil
+}
+
 // MigrationsDir resolves the migrations folder for local dev and Docker.
 func MigrationsDir() string {
 	if v := os.Getenv("MIGRATIONS_DIR"); v != "" {

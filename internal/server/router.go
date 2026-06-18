@@ -24,12 +24,10 @@ func SetupRouter(h *handlers.Handler, cfg *config.Config) *gin.Engine {
 		router.Static("/storage", storagePath)
 	}
 
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"status":  "ok",
-			"message": "SasiVision API is running",
-		})
-	})
+	router.GET("/health", h.Health)
+
+	router.GET("/api/setup/status", h.SetupStatus)
+	router.POST("/api/setup/initialize", h.SetupInitialize)
 
 	api := router.Group("/api")
 	{

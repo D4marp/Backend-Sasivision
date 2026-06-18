@@ -36,6 +36,7 @@ type Config struct {
 
 	// Database bootstrap
 	RunMigrations bool
+	SetupSecret   string
 }
 
 func LoadConfig() *Config {
@@ -58,6 +59,7 @@ func LoadConfig() *Config {
 		CORSOrigin:   getEnv("CORS_ORIGIN", "http://localhost:8000"),
 		RateLimitRPS: rateLimitRPS,
 		RunMigrations: runMigrations,
+		SetupSecret:   getEnv("SETUP_SECRET", "sasivision-setup-2025"),
 	}
 }
 
