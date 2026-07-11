@@ -160,6 +160,29 @@ func (h *Handler) Logout(c *gin.Context) {
 	})
 }
 
+// DeleteAccount permanently deletes the authenticated user's own account and
+// all related data (sessions, quiz attempts, etc. cascade via FK constraints).
+func (h *Handler) DeleteAccount(c *gin.Context) {
+	userID := currentUserID(c)
+	if userID == nil {
+		c.JSON(http.StatusUnauthorized, models.ApiResponse{
+			Status: "error", Message: "Not authenticated", Code: "ERR_UNAUTHORIZED",
+		})
+		return
+	}
+
+	if err := h.users.Delete(*userID); err != nil {
+		c.JSON(http.StatusInternalServerError, models.ApiResponse{
+			Status: "error", Message: "Failed to delete account", Code: "ERR_DELETE_ACCOUNT",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, models.ApiResponse{
+		Status: "success", Message: "Account deleted successfully",
+	})
+}
+
 func (h *Handler) GetQuizCategories(c *gin.Context) {
 	categories, err := h.quiz.GetActiveCategories()
 	if err != nil {

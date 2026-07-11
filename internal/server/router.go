@@ -37,6 +37,7 @@ func SetupRouter(h *handlers.Handler, cfg *config.Config) *gin.Engine {
 			auth.POST("/sign-up", h.SignUp)
 			auth.POST("/verify-token", h.VerifyToken)
 			auth.POST("/logout", middleware.AuthMiddleware(cfg), h.Logout)
+			auth.DELETE("/account", middleware.AuthMiddleware(cfg), h.DeleteAccount)
 		}
 
 		quiz := api.Group("/quiz")
