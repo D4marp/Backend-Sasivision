@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sasivision/backend/internal/config"
 	"github.com/sasivision/backend/internal/utils"
+	"golang.org/x/time/rate"
 )
 
 func CORSMiddleware(cfg *config.Config) gin.HandlerFunc {
@@ -29,13 +31,27 @@ func CORSMiddleware(cfg *config.Config) gin.HandlerFunc {
 	}
 }
 
+// RateLimitMiddleware throttles requests per client IP using a token-bucket
+// limiter that refills continuously at cfg.RateLimitRPS per second, instead of
+// a lifetime counter that never resets.
 func RateLimitMiddleware(cfg *config.Config) gin.HandlerFunc {
-	limiter := make(map[string]int)
+	var mu sync.Mutex
+	limiters := make(map[string]*rate.Limiter)
+
+	getLimiter := func(ip string) *rate.Limiter {
+		mu.Lock()
+		defer mu.Unlock()
+		limiter, ok := limiters[ip]
+		if !ok {
+			limiter = rate.NewLimiter(rate.Limit(cfg.RateLimitRPS), cfg.RateLimitRPS)
+			limiters[ip] = limiter
+		}
+		return limiter
+	}
 
 	return func(c *gin.Context) {
 		ip := c.ClientIP()
-		limiter[ip]++
-		if limiter[ip] > cfg.RateLimitRPS {
+		if !getLimiter(ip).Allow() {
 			c.JSON(http.StatusTooManyRequests, gin.H{
 				"status":  "error",
 				"message": "Too many requests",
